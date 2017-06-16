@@ -1,7 +1,4 @@
-package com.mq;/**
- * Created by administrator on 2017-05-10.
- */
-
+package com.mq;
 import org.apache.log4j.Logger;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;

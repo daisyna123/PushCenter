@@ -21,10 +21,10 @@ import org.springframework.stereotype.Component;
 public class MyServer {
     @Autowired
     private MyChannelHandler myChannelHandler;
-
+    //绑定端口，启动服务
     public void bind(int port) throws Exception {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();//这个是用于serversocketchannel的eventloop
-        EventLoopGroup workerGroup = new NioEventLoopGroup();//这个是用于处理accept到的channel
+        EventLoopGroup bossGroup = new NioEventLoopGroup();//用于serversocketchannel的eventloop
+        EventLoopGroup workerGroup = new NioEventLoopGroup();//用于处理accept到的channel
 
         try {
             ServerBootstrap b = new ServerBootstrap();

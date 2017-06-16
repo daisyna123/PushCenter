@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class MyInBoundHandler extends SimpleChannelInboundHandler<Object> {
     public static Map<String,ChannelHandlerContext>  clientChannelMap;
-    private WebSocketServerHandshaker handshaker;
+    private WebSocketServerHandshaker handshaker;//记录客户端信息
     protected void messageReceived(ChannelHandlerContext channelHandlerContext, Object msg) throws Exception {
        if(msg instanceof FullHttpRequest){
            //如果是http请求
@@ -39,10 +39,10 @@ public class MyInBoundHandler extends SimpleChannelInboundHandler<Object> {
     }
     private void handleHttpRequest(ChannelHandlerContext ctx,FullHttpRequest req){
         if ("websocket".equals(req.headers().get("Upgrade"))) {//websocket请求
-            // 获取请求uri
+            // 获取客户端请求uri
             String uri = req.uri();
             QueryStringDecoder queryStringDecoder = new QueryStringDecoder(uri);
-            // 获取请求参数
+            // 获取客户端请求参数
             Map<String, List<String>> parameters = queryStringDecoder.parameters();
             // 获取客户端商户号
             String mcId = "";
@@ -60,15 +60,23 @@ public class MyInBoundHandler extends SimpleChannelInboundHandler<Object> {
                 if (channelFuture.isSuccess()) {
                     // 记录客户端信息
                     clientChannelMap.put(mcId,ctx);
-                    ctx.channel().writeAndFlush(new TextWebSocketFrame("服务端返回内容---webSocket连接数量"+clientChannelMap.size()));
+                    ChannelFuture future = ctx.channel().writeAndFlush(new TextWebSocketFrame("服务端返回内容---webSocket连接数量"+clientChannelMap.size()));
+                    if(future.isSuccess()){//服务器向客户端返回内容成功
+                        System.out.println("服务器向客户端返回内容成功");
+                    }else {
+                        System.out.println("服务器向客户端返回内容失败");
+                    }
                 }
             }
-        }else{//http请求
-             //获取请求参数
-            Map<String, String> parmMap = getRequestParams(req);
-            System.out.println("http请求参数"+parmMap);
-            ctx.channel().writeAndFlush(new TextWebSocketFrame("服务端返回内容---webSocket请求"));
         }
+        //非webSocket请求暂不考虑
+//        else{
+//            //http请求
+//             //获取请求参数
+//            Map<String, String> parmMap = getRequestParams(req);
+//            System.out.println("http请求参数"+parmMap);
+//            ctx.channel().writeAndFlush(new TextWebSocketFrame("服务端返回内容---webSocket请求"));
+//        }
     }
     private static Map<String, String> getRequestParams(FullHttpRequest req) {
         Map<String, String> requestParams = new HashMap<String, String>();
